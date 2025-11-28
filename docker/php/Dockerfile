@@ -20,11 +20,13 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
 #         "libpng-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
+#         "git", "libzip-dev", "unzip", "supervisor"
 RUN set -eux; \
     apt-get update; \
     apt-get upgrade -y; \
     apt-get install -y --no-install-recommends \
             curl \
+            git \
             libmemcached-dev \
             libz-dev \
             libpq-dev \
@@ -35,7 +37,12 @@ RUN set -eux; \
             libwebp-dev \
             libxpm-dev \
             libmcrypt-dev \
-            libonig-dev; \
+            libonig-dev \
+            libzip-dev \
+            supervisor \
+            unzip \
+            nano \
+            vim; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
@@ -43,6 +50,10 @@ RUN set -eux; \
     docker-php-ext-install pdo_mysql; \
     # Install the PHP pdo_pgsql extention
     docker-php-ext-install pdo_pgsql; \
+    # Install the PHP zip extension
+    docker-php-ext-install zip; \
+    # Install the PHP bcmath extension
+    docker-php-ext-install bcmath; \
     # Install the PHP gd library
     docker-php-ext-configure gd \
             --prefix=/usr \
@@ -53,9 +64,21 @@ RUN set -eux; \
     docker-php-ext-install gd; \
     php -r 'var_dump(gd_info());'
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer 
+# Install additional PHP extensions
+RUN pecl install redis && docker-php-ext-enable redis
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy the entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /var/www/html
-USER www-data
+# Run as root for initial setup to handle permissions
+USER root
+
+# Set the entrypoint to run setup before starting PHP-FPM
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["php-fpm"]
 
 
