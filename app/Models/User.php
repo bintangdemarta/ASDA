@@ -37,7 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email', 'username', 'password', 'phone', 'api_token', 'status', 'gender', 'time_zone', 'language', 'isDeletable'];
+    protected $fillable = ['name', 'email', 'username', 'password', 'phone', 'api_token', 'status', 'gender', 'time_zone', 'language', 'isDeletable', 'asabri_member_number', 'tni_rank', 'tni_unit', 'tni_id_number', 'enrollment_date', 'is_verified'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -58,6 +58,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'password'          => 'hashed',
             'status'            => UserStatus::class,
             'gender'            => UserGender::class,
+            'enrollment_date'   => 'date',
+            'is_verified'       => 'boolean',
         ];
     }
 
@@ -137,5 +139,47 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getAvatarAttribute(): string
     {
         return $this->image[0]?->url ?? 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email)));
+    }
+
+    // Relationships
+    public function insurancePolicies()
+    {
+        return $this->hasMany(InsurancePolicy::class);
+    }
+
+    public function claimRequests()
+    {
+        return $this->hasMany(ClaimRequest::class);
+    }
+
+    public function aiConversations()
+    {
+        return $this->hasMany(AiConversation::class);
+    }
+
+    public function callSchedules()
+    {
+        return $this->hasMany(CallSchedule::class);
+    }
+
+    public function transactionHistories()
+    {
+        return $this->hasMany(TransactionHistory::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    // Admin-specific relationships
+    public function escalatedConversations()
+    {
+        return $this->hasMany(AiConversation::class, 'escalated_to_admin_id');
+    }
+
+    public function scheduledCalls()
+    {
+        return $this->hasMany(CallSchedule::class, 'admin_id');
     }
 }

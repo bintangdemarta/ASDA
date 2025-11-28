@@ -22,7 +22,12 @@ class AuthController extends Controller
     {
         $request->ensureIsNotRateLimited();
 
-        $credentials = $request->only('email', 'password');
+        // Support login with email or ASABRI member number
+        $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'asabri_member_number';
+        $credentials = [
+            $loginField => $request->email,
+            'password' => $request->password,
+        ];
 
         if (! auth()->attempt($credentials)) {
             RateLimiter::hit($request->throttleKey());
@@ -37,7 +42,11 @@ class AuthController extends Controller
         /** @var User $authenticatedUser */
         $authenticatedUser = auth()->user();
 
-        if (! $authenticatedUser->hasVerifiedEmail()) {
+        // For TNI members, they might not have email, so we'll skip email verification check for them
+        // Only check email verification if the login was done with an email (not ASABRI member number)
+        $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'asabri_member_number';
+
+        if ($loginField === 'email' && ! $authenticatedUser->hasVerifiedEmail()) {
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.notice',
                 now()->addMinutes(60),

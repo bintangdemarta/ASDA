@@ -306,6 +306,41 @@ class RolePermissionSeeder extends Seeder
                     'notification.status',
                 ],
             ],
+
+            [
+                'group_name'  => 'insurance',
+                'permissions' => [
+                    'insurance.view',
+                    'insurance.status',
+                ],
+            ],
+
+            [
+                'group_name'  => 'claim',
+                'permissions' => [
+                    'claim.create',
+                    'claim.view',
+                    'claim.edit',
+                    'claim.delete',
+                    'claim.status',
+                ],
+            ],
+
+            [
+                'group_name'  => 'conversation',
+                'permissions' => [
+                    'conversation.create',
+                    'conversation.view',
+                ],
+            ],
+
+            [
+                'group_name'  => 'call',
+                'permissions' => [
+                    'call.create',
+                    'call.view',
+                ],
+            ],
         ];
 
         foreach ($permissions as $group) {
@@ -322,6 +357,7 @@ class RolePermissionSeeder extends Seeder
         Role::create(['name' => 'admin']);
         Role::create(['name' => 'editor']);
         Role::create(['name' => 'author']);
+        Role::create(['name' => 'tni_member']);
     }
 
     private function assignPermissionsToRoles()
@@ -661,6 +697,22 @@ class RolePermissionSeeder extends Seeder
                 'tag.view',
 
                 'product.view',
+            ],
+
+            'tni_member' => [
+                'dashboard.view',
+
+                'insurance.view',
+                'insurance.status',
+
+                'claim.create',
+                'claim.view',
+
+                'conversation.create',
+                'conversation.view',
+
+                'call.create',
+                'call.view',
             ],
         ];
 
