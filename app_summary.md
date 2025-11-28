@@ -96,6 +96,7 @@ ASDA is a comprehensive customer service platform for ASABRI (Indonesian Armed F
 - **Frontend (Vue.js/React)** - User interface
 - **Queue Worker** - Background processing
 - **Redis** - Caching & sessions
+- **Python AI Service** - Internal NLP processing
 
 ---
 
@@ -106,6 +107,7 @@ ASDA is a comprehensive customer service platform for ASABRI (Indonesian Armed F
 - `insurance_policies`
 - `claim_requests`
 - `ai_conversations`
+- `ai_training_data`
 - `call_schedules`
 - `transaction_history`
 - `reports`
@@ -118,36 +120,113 @@ ASDA is a comprehensive customer service platform for ASABRI (Indonesian Armed F
 - **Role-based Access Control**
 - **Audit Trail** for all activities
 - **Compliance** with TNI data regulations
+- **On-premise AI Model** for data privacy
 
 ---
 
 ## 🤖 **AI Chatbot Implementation Strategy**
 
-### **Recommended Approach: Hybrid Solution**
+### **Recommended Approach: Internal AI Development**
 ```php
-class HybridAIController {
+class InternalAIController {
     public function routeQuestion($question) {
         // Simple questions → Rule-based responses
         if ($this->isSimpleQuery($question)) {
             return $this->getPredefinedAnswer($question);
         }
         
-        // Complex questions → External AI API
-        return $this->callExternalAI($question);
+        // Complex questions → Internal AI Model
+        return $this->processWithInternalAI($question);
     }
 }
 ```
 
 ### **Implementation Phases:**
-1. **Phase 1**: Rule-based system with FAQ database
-2. **Phase 2**: External AI integration (OpenAI, Dialogflow, etc.)
-3. **Phase 3**: Continuous improvement and optimization
 
-### **Core Chatbot Features:**
-- ✅ **FAQ Autoresponder** for common questions
-- ✅ **Status Check Integration** with database
-- ✅ **Admin Escalation** for complex queries
-- ✅ **Conversation Logging** history storage
+#### **Phase 1: Rule-based System with FAQ Database** (Weeks 1-4)
+```php
+class BasicChatbot {
+    protected $faqDatabase = [
+        'status_klaim' => 'Template jawaban status...',
+        'dana_cair' => 'Template pencairan dana...',
+        'syarat_klaim' => 'Persyaratan klaim...'
+    ];
+    
+    public function getAnswer($question) {
+        $intent = $this->classifyIntent($question);
+        return $this->faqDatabase[$intent] ?? 'Mohon hubungi admin...';
+    }
+}
+```
+
+#### **Phase 2: Internal AI Model Development** (Weeks 5-12)
+
+**Architecture:**
+```
+User Question → Text Preprocessing → Intent Classification → Response Generation → User
+```
+
+**Technical Stack:**
+- **Python Flask/FastAPI** for AI service
+- **TensorFlow/PyTorch** for model training
+- **NLTK/spaCy** for Indonesian NLP
+- **Redis** for caching responses
+
+**Model Components:**
+1. **Text Preprocessing**
+   - Indonesian tokenization
+   - Stopword removal
+   - Stemming/Lemmatization
+
+2. **Intent Classification Model**
+   - Custom neural network/Naive Bayes
+   - Trained on ASABRI-specific questions
+   - Continuous learning from user interactions
+
+3. **Response Generation**
+   - Template-based responses
+   - Context-aware answer selection
+   - Dynamic data integration
+
+**Training Data Strategy:**
+- Collect real customer questions
+- Admin-verified response pairs
+- Synthetic data generation
+- Continuous feedback loop
+
+#### **Phase 3: Advanced Features & Optimization** (Weeks 13+)
+- Context management across conversations
+- Personalization based on user history
+- Performance optimization
+- Advanced analytics
+
+---
+
+## 🛠️ **Internal AI Model Development Plan**
+
+### **Week 5-6: Data Collection & Preparation**
+- Gather historical customer queries
+- Create labeled dataset for training
+- Develop data preprocessing pipeline
+- Set up model training environment
+
+### **Week 7-8: Model Development**
+- Build intent classification model
+- Implement response selection algorithm
+- Create model evaluation framework
+- Initial model training and testing
+
+### **Week 9-10: Integration & Deployment**
+- Deploy Python AI service in Docker
+- Integrate with Laravel backend
+- Implement API communication
+- Set up monitoring and logging
+
+### **Week 11-12: Refinement & Testing**
+- User acceptance testing
+- Model performance optimization
+- Security and privacy validation
+- Production deployment
 
 ---
 
@@ -164,6 +243,7 @@ class HybridAIController {
 - ✅ **Professional** for corporate environment
 - ✅ **Scalable** for future features
 - ✅ **Clear purpose** as digital assistant
+- ✅ **Data Privacy** with internal AI solution
 
 ---
 
@@ -173,14 +253,15 @@ class HybridAIController {
 3. **Advanced Analytics** dashboard
 4. **WhatsApp Business API** integration
 5. **Biometric Verification** for large claims
+6. **Multimodal AI** with image/document processing
 
 ---
 
 ## 💡 **Value Proposition**
-- **For TNI Members**: 24/7 access, status transparency, quick responses
-- **For ASABRI Admins**: Operational efficiency, comprehensive tracking, reduced workload
-- **For the Company**: Improved customer satisfaction, data-driven decision making
+- **For TNI Members**: 24/7 access, status transparency, quick responses, **data privacy**
+- **For ASABRI Admins**: Operational efficiency, comprehensive tracking, reduced workload, **full control**
+- **For the Company**: Improved customer satisfaction, data-driven decision making, **sovereign AI solution**
 
-ASDA will transform ASABRI services into a digital-first experience while maintaining personal touch through seamless AI and human support integration.
+ASDA will transform ASABRI services into a digital-first experience while maintaining complete data control and privacy through our internal AI infrastructure.
 
 **Ready to proceed with ASDA development?** 🚀

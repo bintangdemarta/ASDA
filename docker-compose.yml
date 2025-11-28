@@ -10,6 +10,7 @@ services:
         volumes:
             - mysql-data:/var/lib/mysql
             - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+            - ./init-ai.sql:/docker-entrypoint-initdb.d/init-ai.sql:ro
         environment:
             MYSQL_ROOT_PASSWORD: "root"
             MYSQL_ROOT_HOST: "%"
@@ -54,6 +55,36 @@ services:
             timeout: 5s
             retries: 10
 
+    python-ai:
+        build:
+            context: ./docker/ai
+            dockerfile: Dockerfile
+        container_name: laravel-starter-python-ai
+        restart: unless-stopped
+        volumes:
+            - ./:/app
+            - ./docker/ai:/app/ai
+        working_dir: /app
+        environment:
+            - PYTHONUNBUFFERED=1
+            - REDIS_HOST=redis
+            - DB_HOST=mysql
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - admin-panel-network
+        ports:
+            - "5001:5000"  # Flask API port (changed from 5000 to 5001 to avoid conflicts)
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+
     php:
         build:
             context: ./docker/php
@@ -73,6 +104,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            python-ai:
+                condition: service_started
         networks:
             - admin-panel-network
         healthcheck:
